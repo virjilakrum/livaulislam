@@ -1,0 +1,213 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Apply Playwrite Hrvatska Lijeva Guides font globally */
+* {
+  font-family: 'Playwrite HR Lijeva', cursive;
+}
+
+/* Global background color */
+body {
+  background-color: #FEF7ED !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FEF7ED;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D6D3D1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #A8A29E;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* React Quill customization */
+.ql-toolbar {
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: 1px solid #e7e5e4 !important;
+}
+
+.ql-container {
+  border: none !important;
+  font-size: 16px !important;
+  font-family: inherit !important;
+}
+
+.ql-editor {
+  min-height: 300px !important;
+  padding: 24px !important;
+}
+
+.ql-editor.ql-blank::before {
+  color: #A8A29E !important;
+  font-style: normal !important;
+}
+
+/* Smooth transitions */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Ensure headers are always black */
+h1, h2, h3, h4, h5, h6 {
+  color: #000000 !important;
+  font-weight: 400;
+  font-family: 'Anton', sans-serif !important;
+}
+
+/* Modern button styles */
+.btn-modern {
+  border-radius: 20px;
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.1);
+}
+
+.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px 0 rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary-modern {
+  background: linear-gradient(135deg, #000000 0%, #2D2D2D 100%);
+  color: #FEF7ED;
+  border: none;
+}
+
+.btn-primary-modern:hover {
+  background: linear-gradient(135deg, #2D2D2D 0%, #4A4A4A 100%);
+}
+
+.btn-secondary-modern {
+  background: transparent;
+  color: #000000;
+  border: 2px solid #000000;
+}
+
+.btn-secondary-modern:hover {
+  background: #000000;
+  color: #FEF7ED;
+}
+
+/* Custom focus styles */
+.focus-ring:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #000000, 0 0 0 4px #FEF7ED;
+}
+
+/* Article content styling */
+.article-content h1,
+.article-content h2,
+.article-content h3 {
+  color: #000000 !important;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 1.5em 0 0.5em 0;
+}
+
+.article-content h1 {
+  font-size: 2rem;
+}
+
+.article-content h2 {
+  font-size: 1.5rem;
+}
+
+.article-content h3 {
+  font-size: 1.25rem;
+}
+
+.article-content p {
+  color: #2D2D2D;
+  line-height: 1.7;
+  margin: 1em 0;
+}
+
+.article-content blockquote {
+  border-left: 4px solid #000000;
+  background: #F5F5DC;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+}
+
+.article-content code {
+  background: #F5F5DC;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.article-content pre {
+  background: #000000;
+  color: #FEF7ED;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.article-content pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+.article-content ul,
+.article-content ol {
+  margin: 1rem 0;
+  padding-left: 2rem;
+}
+
+.article-content li {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
+
+.article-content a {
+  color: #000000;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+.article-content a:hover {
+  color: #2D2D2D;
+}
+
+.article-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
