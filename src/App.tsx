@@ -7,6 +7,12 @@ import { DiscoverPage } from './pages/DiscoverPage';
 import { AboutPage } from './pages/AboutPage';
 import { WritingStudio } from './pages/WritingStudio';
 import { ProfilePage } from './pages/ProfilePage';
+import { ArticleDetailPage } from './pages/ArticleDetailPage';
+import { DashboardPage } from './pages/DashboardPage';
+import { SettingsPage } from './pages/SettingsPage';
+import { LikedArticlesPage } from './pages/LikedArticlesPage';
+import { SearchResultsPage } from './pages/SearchResultsPage';
+import { CommunityPage } from './pages/CommunityPage';
 
 function App() {
   return (
@@ -20,10 +26,13 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/write" element={<WritingStudio />} />
           <Route path="/profile/:username" element={<ProfilePage />} />
+          <Route path="/article/:slug" element={<ArticleDetailPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/liked" element={<LikedArticlesPage />} />
+          <Route path="/search" element={<SearchResultsPage />} />
+          <Route path="/community" element={<CommunityPage />} />
           {/* Placeholder routes for future implementation */}
-          <Route path="/article/:slug" element={<div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#FEF7ED' }}><p className="text-neutral-600">Article page coming soon!</p></div>} />
-          <Route path="/community" element={<div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#FEF7ED' }}><p className="text-neutral-600">Community page coming soon!</p></div>} />
-          <Route path="/dashboard" element={<div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#FEF7ED' }}><p className="text-neutral-600">Dashboard coming soon!</p></div>} />
         </Routes>
       </div>
     </Router>

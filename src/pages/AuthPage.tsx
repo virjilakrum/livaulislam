@@ -11,6 +11,7 @@ export function AuthPage() {
     password: '',
     username: '',
     displayName: '',
+    usernameOrEmail: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -33,11 +34,11 @@ export function AuthPage() {
     try {
       if (mode === 'signin') {
         // Validate input
-        if (!formData.email || !formData.password) {
+        if (!formData.usernameOrEmail || !formData.password) {
           throw new Error('Email/Username and password are required');
         }
-        
-        const { error } = await signIn(formData.email, formData.password);
+
+        const { error } = await signIn(formData.usernameOrEmail, formData.password);
         if (error) throw error;
         navigate('/dashboard');
       } else {
@@ -185,17 +186,17 @@ export function AuthPage() {
               )}
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-2">
+                <label htmlFor={mode === 'signin' ? 'usernameOrEmail' : 'email'} className="block text-sm font-medium text-neutral-700 mb-2">
                   {mode === 'signin' ? 'Email or Username' : 'Email Address'}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 h-5 w-5" />
                   <input
-                    id="email"
-                    name="email"
+                    id={mode === 'signin' ? 'usernameOrEmail' : 'email'}
+                    name={mode === 'signin' ? 'usernameOrEmail' : 'email'}
                     type={mode === 'signin' ? 'text' : 'email'}
                     required
-                    value={formData.email}
+                    value={mode === 'signin' ? formData.usernameOrEmail : formData.email}
                     onChange={handleInputChange}
                     className="w-full pl-10 pr-4 py-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white"
                     placeholder={mode === 'signin' ? 'Email or username' : 'your@email.com'}

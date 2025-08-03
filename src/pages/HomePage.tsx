@@ -29,6 +29,35 @@ export function HomePage() {
   const [trendingArticles, setTrendingArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const handleLikeUpdate = (articleId: string, newLikesCount: number) => {
+    // Update featured articles
+    setFeaturedArticles(prev =>
+      prev.map(article =>
+        article.id === articleId
+          ? { ...article, likes_count: newLikesCount }
+          : article
+      )
+    );
+
+    // Update recent articles
+    setRecentArticles(prev =>
+      prev.map(article =>
+        article.id === articleId
+          ? { ...article, likes_count: newLikesCount }
+          : article
+      )
+    );
+
+    // Update trending articles
+    setTrendingArticles(prev =>
+      prev.map(article =>
+        article.id === articleId
+          ? { ...article, likes_count: newLikesCount }
+          : article
+      )
+    );
+  };
+
   useEffect(() => {
     fetchArticles();
   }, []);
@@ -149,7 +178,12 @@ export function HomePage() {
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {featuredArticles.map((article) => (
-                <ArticleCard key={article.id} article={article} featured />
+                <ArticleCard
+                  key={article.id}
+                  article={article}
+                  featured
+                  onLikeUpdate={handleLikeUpdate}
+                />
               ))}
             </div>
           </section>
@@ -164,7 +198,11 @@ export function HomePage() {
             {recentArticles.length > 0 ? (
               <div className="space-y-8">
                 {recentArticles.map((article) => (
-                  <ArticleCard key={article.id} article={article} />
+                  <ArticleCard
+                    key={article.id}
+                    article={article}
+                    onLikeUpdate={handleLikeUpdate}
+                  />
                 ))}
               </div>
             ) : (

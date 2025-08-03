@@ -12,6 +12,8 @@ export interface Profile {
   twitter: string;
   linkedin: string;
   location: string;
+  followers_count: number;
+  following_count: number;
   created_at: string;
   updated_at: string;
 }
@@ -33,7 +35,7 @@ export function useAuth() {
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         await fetchProfile(session.user.id);
@@ -52,15 +54,15 @@ export function useAuth() {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .limit(1);
+        .single();
 
       if (error) {
         console.error('Error fetching profile:', error);
-      } else if (data && data.length > 0) {
-        setProfile(data[0]);
-      } else {
-        setProfile(null);
+        setLoading(false);
+        return;
       }
+
+      setProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);
     } finally {
@@ -68,154 +70,148 @@ export function useAuth() {
     }
   };
 
-  const signIn = async (email: string, password: string) => {
-    // First try to sign in with email
-    let result = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    
-    // If email login fails, try to find user by username and use their email
-    if (result.error && result.error.message.includes('Invalid login credentials')) {
-      try {
-        // Check if the "email" is actually a username
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('username', email.toLowerCase())
-          .limit(1)
-          .maybeSingle();
+  const checkUsernameAvailability = async (username: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase.rpc('check_username_availability', {
+        username_param: username
+      });
 
-        if (!profileError && profileData) {
-          // Get the user's email from auth.users
-          const { data: userData, error: userError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', profileData.id)
-            .limit(1)
-            .maybeSingle();
-
-          if (!userError && userData) {
-            // Get email from auth metadata or use RPC function
-            const { data: authUser, error: authError } = await supabase.rpc(
-              'get_user_email_by_id', 
-              { user_id: profileData.id }
-            );
-
-            if (!authError && authUser) {
-              result = await supabase.auth.signInWithPassword({
-                email: authUser,
-                password,
-              });
-            }
-          }
-        }
-      } catch (usernameError) {
-        console.error('Username login attempt failed:', usernameError);
+      if (error) {
+        console.error('Error checking username availability:', error);
+        return false;
       }
+
+      return data;
+    } catch (error) {
+      console.error('Error checking username availability:', error);
+      return false;
     }
-    
-    return { data: result.data, error: result.error };
   };
 
   const signUp = async (email: string, password: string, username: string, displayName: string) => {
-    // Check if username already exists
-    const { data: existingProfile, error: checkError } = await supabase
-      .from('profiles')
-      .select('username')
-      .eq('username', username.toLowerCase())
-      .limit(1)
-      .maybeSingle();
-
-    if (checkError && checkError.code !== 'PGRST116') {
-      return { data: null, error: checkError };
-    }
-
-    if (existingProfile) {
-      return { 
-        data: null, 
-        error: { message: 'Username already exists' } as any 
-      };
-    }
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          username: username.toLowerCase(),
-          display_name: displayName,
-        }
+    try {
+      // Check if username is available
+      const isAvailable = await checkUsernameAvailability(username);
+      if (!isAvailable) {
+        return { 
+          data: null, 
+          error: { message: 'Username already exists' } 
+        };
       }
-    });
 
-    if (data.user && !error) {
-      // Wait a bit for the user to be created in auth
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Sign up user
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            display_name: displayName,
+            username: username
+          }
+        }
+      });
+
+      if (error) {
+        return { data: null, error };
+      }
+
+      // Profile will be created automatically by the trigger
+      return { data, error: null };
+    } catch (error) {
+      console.error('Sign up error:', error);
+      return { data: null, error };
+    }
+  };
+
+  const signIn = async (usernameOrEmail: string, password: string) => {
+    try {
+      let email = usernameOrEmail;
       
-      // Create profile with retry mechanism
-      let retries = 3;
-      let profileError = null;
-      
-      while (retries > 0) {
-        const { error: insertError } = await supabase.from('profiles').insert({
-          id: data.user.id,
-          username: username.toLowerCase(),
-          display_name: displayName,
-          bio: '',
-          avatar_url: '',
-          website: '',
-          twitter: '',
-          linkedin: '',
-          location: '',
+      // If it doesn't contain @, it's a username, so we need to get the email
+      if (!usernameOrEmail.includes('@')) {
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('username', usernameOrEmail)
+          .single();
+
+        if (profileError || !profileData) {
+          return { data: null, error: { message: 'User not found' } };
+        }
+
+        // Get email from auth.users
+        const { data: userData, error: userError } = await supabase.rpc('get_user_email_by_id', {
+          user_id: profileData.id
         });
-        
-        if (!insertError) {
-          profileError = null;
-          break;
-        }
-        
-        profileError = insertError;
-        retries--;
-        
-        if (retries > 0) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-      }
-      
-      if (profileError) {
-        console.error('Profile creation failed:', profileError);
-        // Don't return error here, let user sign in and create profile later
-      }
-    }
 
-    return { data, error };
+        if (userError || !userData) {
+          return { data: null, error: { message: 'User not found' } };
+        }
+
+        email = userData;
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      return { data, error };
+    } catch (error) {
+      console.error('Sign in error:', error);
+      return { data: null, error };
+    }
   };
 
   const signOut = async () => {
     try {
-      // Clear local state first
-      setUser(null);
-      setProfile(null);
+      setLoading(true);
       
-      // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) {
-        console.error('Supabase sign out error:', error);
+        console.error('Sign out error:', error);
         return { error };
       }
-      
-      // Clear any cached data
-      localStorage.removeItem('supabase.auth.token');
-      sessionStorage.clear();
-      
-      console.log('Sign out completed successfully');
+
+      // Clear local state
+      setUser(null);
+      setProfile(null);
       
       return { error: null };
-    } catch (error: any) {
+    } catch (error) {
       console.error('Sign out process error:', error);
       return { error };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateProfile = async (updates: Partial<Profile>) => {
+    try {
+      if (!user) {
+        return { data: null, error: { message: 'Not authenticated' } };
+      }
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        return { data: null, error };
+      }
+
+      setProfile(data);
+      return { data, error: null };
+    } catch (error) {
+      console.error('Update profile error:', error);
+      return { data: null, error };
     }
   };
 
@@ -223,8 +219,10 @@ export function useAuth() {
     user,
     profile,
     loading,
-    signIn,
     signUp,
+    signIn,
     signOut,
+    updateProfile,
+    checkUsernameAvailability
   };
 }

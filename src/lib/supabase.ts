@@ -19,6 +19,8 @@ export type Database = {
           twitter: string;
           linkedin: string;
           location: string;
+          followers_count: number;
+          following_count: number;
           created_at: string;
           updated_at: string;
         };
@@ -32,6 +34,8 @@ export type Database = {
           twitter?: string;
           linkedin?: string;
           location?: string;
+          followers_count?: number;
+          following_count?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -45,6 +49,8 @@ export type Database = {
           twitter?: string;
           linkedin?: string;
           location?: string;
+          followers_count?: number;
+          following_count?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -63,6 +69,8 @@ export type Database = {
           tags: string[];
           reading_time: number;
           view_count: number;
+          likes_count: number;
+          comments_count: number;
           created_at: string;
           updated_at: string;
           published_at: string | null;
@@ -80,6 +88,8 @@ export type Database = {
           tags?: string[];
           reading_time?: number;
           view_count?: number;
+          likes_count?: number;
+          comments_count?: number;
           created_at?: string;
           updated_at?: string;
           published_at?: string | null;
@@ -97,6 +107,8 @@ export type Database = {
           tags?: string[];
           reading_time?: number;
           view_count?: number;
+          likes_count?: number;
+          comments_count?: number;
           created_at?: string;
           updated_at?: string;
           published_at?: string | null;
@@ -166,6 +178,38 @@ export type Database = {
           content?: string;
           created_at?: string;
           updated_at?: string;
+        };
+      };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          type: string;
+          title: string;
+          message: string;
+          data: any;
+          read: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          type: string;
+          title: string;
+          message: string;
+          data?: any;
+          read?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          type?: string;
+          title?: string;
+          message?: string;
+          data?: any;
+          read?: boolean;
+          created_at?: string;
         };
       };
     };
